@@ -44,8 +44,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          'element-plus': ['element-plus'],
-          'vue-vendor': ['vue', 'vue-router', 'pinia']
+          // 'element-plus': ['element-plus'],
+          // 'vue-vendor': ['vue', 'vue-router', 'pinia']
         }
       }
     },
@@ -94,9 +94,9 @@ export default defineConfig({
   },
 
   // 环境变量配置
-  define: {
-    __APP_VERSION__: JSON.stringify(process.env.npm_package_version)
-  },
+  // define: {
+  //   __APP_VERSION__: JSON.stringify(process.env.npm_package_version)
+  // },
 
   // 依赖优化
   optimizeDeps: {
