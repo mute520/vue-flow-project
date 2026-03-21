@@ -34,7 +34,7 @@ export default defineConfig({
   // 构建配置
   build: {
     // 输出目录
-    outDir: 'dist',
+    outDir: 'docs',
     // 静态资源目录
     assetsDir: 'assets',
     // 压缩配置
