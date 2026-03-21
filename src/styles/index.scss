@@ -1,0 +1,92 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  height: 100%;
+}
+
+// 引入 vue-flow styles
+@import "@vue-flow/core/dist/style.css";
+@import "@vue-flow/controls/dist/style.css";
+@import "@vue-flow/minimap/dist/style.css";
+// @import "@vue-flow/core/dist/theme-default.css";
+// 引入 vue-flow styles
+
+.node-container {
+  position: relative;
+  width: 100px;
+  // height: 100px;
+  width: 360px;
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  transition: border-color 0.3s ease;
+  &.is-selected {
+    border-color: $primary-color;
+  }
+  &:hover {
+    .vue-flow__handle {
+      width: 15px;
+      height: 15px;
+      background-color: $primary-color;
+    }
+  }
+  .node-content {
+    text-align: center;
+  }
+  .vue-flow__handle {
+    width: 10px;
+    height: 10px;
+    background-color: #37d0ff;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s;
+    &.is-connected {
+      background-color: $primary-color;
+    }
+    // &::before {
+    //   content: '';
+    //   position: absolute;
+    //   inset: -10px;
+    //   background-color: rgba(255, 0, 0, 0.271);
+    // }
+    &:hover {
+      background-color: $primary-color;
+      .el-icon {
+        transform: translate(-50%, -50%) scale(0.8);
+      }
+    }
+    .el-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      transition: all 0.3s;
+      color: #fff;
+    }
+  }
+}
+
+.el-popper.is-customized {
+  /* Set padding to ensure the height is 32px */
+  padding: 6px 12px;
+  // background: linear-gradient(90deg, rgb(159, 229, 151), rgb(204, 229, 129));
+  background-color: #fff;
+  border: 1px solid #ebeef5;
+}
+
+.el-popper.is-customized .el-popper__arrow::before {
+  // background: linear-gradient(45deg, #b2e68d, #bce689);
+  right: 0;
+  background-color: #fff;
+}
+
+.is-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
