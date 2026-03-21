@@ -7,6 +7,7 @@ import Components from 'unplugin-vue-components/vite'
 // import tailwindcss from 'tailwindcss'
 
 export default defineConfig({
+  base: './', // 设置项目根目录
   plugins: [
     vue(),
 
