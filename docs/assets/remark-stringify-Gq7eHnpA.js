@@ -1,0 +1,1 @@
+import{t as i}from"./mdast-util-to-markdown-CNcqa6Uy.js";function e(n){const t=this;t.compiler=o;function o(r){return i(r,{...t.data("settings"),...n,extensions:t.data("toMarkdownExtensions")||[]})}}export{e as r};

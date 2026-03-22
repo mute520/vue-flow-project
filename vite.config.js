@@ -43,7 +43,11 @@ export default defineConfig({
     // 代码分割
     rollupOptions: {
       output: {
-        manualChunks: {}
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            return id.toString().split('node_modules/')[1].split('/')[0].toString()
+          }
+        }
       }
     },
     // 构建后是否生成 source map 文件

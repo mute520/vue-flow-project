@@ -1,0 +1,1 @@
+import{v as c}from"./unist-util-visit-B366gb38.js";function s(n){const e=new Map;if(!n||!n.type)throw new Error("mdast-util-definitions expected node");return c(n,"definition",function(t){const i=o(t.identifier);i&&!e.get(i)&&e.set(i,t)}),r;function r(t){const i=o(t);return e.get(i)}}function o(n){return String(n||"").toUpperCase()}export{s as d};
