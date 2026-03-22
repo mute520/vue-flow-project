@@ -16,7 +16,7 @@
       </el-tooltip>
       <div class="relative">
         <div class="add-node-dialog absolute"><slot name="addBtn"></slot></div>
-        <el-button ref="addBtn" class="add-node-btn" @click="clickAddBtn"><el-icon class="mr-10"><Plus /></el-icon> 添加节点</el-button>
+        <el-button ref="addBtn" class="add-node-btn" @click.stop="clickAddBtn"><el-icon class="mr-10"><Plus /></el-icon> 添加节点</el-button>
       </div>
     </div>
     <div class="right flex items-center ml-10">

@@ -1,6 +1,6 @@
 <template>
   <div class="node-list-dialog" :class="{'only-add-node': onlyAddNode}" :style="style" ref="nodeListRef">
-    <el-input prefix-icon="search"></el-input>
+    <el-input v-model="searchValue" :prefix-icon="Search"></el-input>
     <div>
       <template v-for="item in mainNodes" :key="item.id">
         <p class="text-[#888] mt-10 mb-5">{{ item.title }}</p>
@@ -17,6 +17,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from "vue"
+import { Search } from '@element-plus/icons-vue';
 import startIcon from '@/assets/icons/icon-Start-v2.jpg'
 import endIcon from '@/assets/icons/icon-End-v2.jpg'
 import llmIcon from '@/assets/icons/icon-LLM-v2.jpg'
@@ -34,6 +35,8 @@ const props = defineProps({
   },
   onlyAddNode: Boolean,
 })
+
+const searchValue = ref('');
 const nodeListRef = ref();
 
 const style = computed(() => ({
@@ -48,7 +51,7 @@ const mainNodes = [
       { name: '大模型', type: 'llm', icon: llmIcon },
       { name: '文生图', type: 'texttoimg', icon: llmIcon },
       { name: '图生图', type: 'imgtoimg', icon: llmIcon },
-      { name: '输出', type: 'output', icon: outputIcon },
+      { name: '输出', type: 'out', icon: outputIcon },
     ]
   },
   {
@@ -63,8 +66,8 @@ const mainNodes = [
   },
 ]
 
-const clickItem = (nodeType) => {
-  emit('clickItem', { nodeType });
+const clickItem = (item) => {
+  emit('clickItem', { ...item });
 }
 
 onMounted(() => {})
@@ -101,19 +104,20 @@ onMounted(() => {})
       }
     }
   }
-  &::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: -19px;
-    width: 0;
-    height: 0;
-    border: 10px solid transparent;
-    border-top-color: #fff;
-  }
   &.only-add-node {
     position: static;
-    height: 500px;    
+    height: 500px;
+    transform-origin: bottom; 
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: -19px;
+      width: 0;
+      height: 0;
+      border: 10px solid transparent;
+      border-top-color: #fff;
+    }
   }
 }
 

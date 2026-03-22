@@ -40,23 +40,27 @@
         </template>
       </FlowTools>
     </div>
+    <AlignGuide :guideLines="guideLines" />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { nextTick, onUnmounted, ref } from 'vue';
 import { useVueFlow, VueFlow } from '@vue-flow/core';
 import { MiniMap } from '@vue-flow/minimap';
 import { Background } from '@vue-flow/background';
 import { v4 as uuidv4 } from 'uuid';
 import AddNodeDialog from '@/components/dialogs/AddNodeDialog.vue';
+import useAlignGuide from "@/hooks/useAlignGuide.js";
 
 const flowId = 'main';
 
 const {
   vueFlowRef, getNodes, getEdges, addNodes, addEdges, updateNode, updateEdge, removeNodes, removeEdges, toObject,
-  onConnect, onPaneReady, onConnectStart, onConnectEnd, onViewportChange
+  onConnect, onPaneReady, onConnectStart, onConnectEnd, onViewportChange, onNodeDragStart
 } = useVueFlow(flowId);
+
+const { guideLines } = useAlignGuide({ flowId, threshold: 8 });
 
 const initNodes = () => {
   const node1 = { id: '1', type: 'start', data: { name: '开始' }, position: { x: 250, y: 5 } };
@@ -66,6 +70,10 @@ const initNodes = () => {
   const node5 = { id: '5', type: 'end', data: { name: '结束' }, position: { x: 50, y: 400 } };
 
   addNodes([node1, node2, node3, node4, node5]);
+
+  const edge1 = { id: '1->2', type: 'custom', source: '1', target: '2' };
+  const edge2 = { id: '2->3', type: 'custom', source: '2', target: '3' };
+  addEdges([edge1, edge2]);
 }
 
 onPaneReady(instance => {
@@ -76,16 +84,24 @@ onPaneReady(instance => {
 
 onConnect((params) => {
   console.log('onConnect', params);
-  const edge = {
+  const edge = { 
     ...params,
     type: 'custom',
   }
   addEdges([edge]);
 })
 
+onViewportChange(() => {
+  closeNodeDialog();
+})
+
+onNodeDragStart(() => {
+  closeNodeDialog();
+})
+
 onConnectStart((event, params) => {
   console.log('onConnectStart', event, params);
-  nodeDialogVisible.value = false;
+  closeNodeDialog();
 })
 
 onConnectEnd((event, params) => {
@@ -95,10 +111,31 @@ onConnectEnd((event, params) => {
 
 const clickPlus = (info) => {
   console.log('clickPlus_info', info);
-  const { x, y, sourceNode, nodeType } = info;
-  nodeDialogVisible.value = true;
+  const { x, y, sourceNode, nodeType, edgeInfo } = info;
+  if (edgeInfo) { // 点击边中间的加号
+    nodeDialogVisible.value = false;
+  }
+  setTimeout(() => {
+    nodeDialogVisible.value = true;
+  })
   posInfo.value = { x, y };
 }
+
+const nodeDialogVisible = ref(false);
+const closeNodeDialog = () => {
+  nodeDialogVisible.value = false;
+  isShowAddNodeDialog.value = false;
+}
+
+const posInfo = ref({ x: 0, y: 0 });
+const _clickItem = (nodeInfo) => {
+  console.log('_clickItem_item: ', nodeInfo);
+  const { type, name } = nodeInfo;
+  const nodeItem = { id: uuidv4(), type, data: { name }, position: { x: 456, y: 105 } };
+  addNodes([nodeItem]);
+  closeNodeDialog();
+}
+
 const clickNode = (info) => {
   console.log('clickNode_info', info);
 }
@@ -112,14 +149,24 @@ const onMiniMap = (bool) => {
 const isShowAddNodeDialog = ref(false);
 const clickAddNodeBtn = () => {
   console.log('clickAddNodeBtn');
+  nodeDialogVisible.value = false;
   isShowAddNodeDialog.value = true;
 }
 
-const nodeDialogVisible = ref(false);
-const posInfo = ref({ x: 0, y: 0 });
-const _clickItem = (item) => {
-  
+// 事件触发
+const clickEvent1 = (e) => {
+  const element = document.elementFromPoint(e.clientX, e.clientY);
+  console.log('clickEvent1: ', element);
+  if (!element?.closest('.node-list-dialog')) {
+    closeNodeDialog();
+    // removePendingNode();
+  }
 }
+window.addEventListener('click', clickEvent1);
+onUnmounted(() => {
+  window.removeEventListener('click', clickEvent1);
+})
+// 事件触发
 
 </script>
 

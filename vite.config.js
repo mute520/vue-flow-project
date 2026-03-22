@@ -43,10 +43,7 @@ export default defineConfig({
     // 代码分割
     rollupOptions: {
       output: {
-        manualChunks: {
-          // 'element-plus': ['element-plus'],
-          // 'vue-vendor': ['vue', 'vue-router', 'pinia']
-        }
+        manualChunks: {}
       }
     },
     // 构建后是否生成 source map 文件
@@ -94,9 +91,9 @@ export default defineConfig({
   },
 
   // 环境变量配置
-  // define: {
-  //   __APP_VERSION__: JSON.stringify(process.env.npm_package_version)
-  // },
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version)
+  },
 
   // 依赖优化
   optimizeDeps: {
