@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-import { nextTick, onUnmounted, ref } from 'vue';
+import { nextTick, onUnmounted, ref, watch } from 'vue';
 import { useVueFlow, VueFlow } from '@vue-flow/core';
 import { MiniMap } from '@vue-flow/minimap';
 import { Background } from '@vue-flow/background';
@@ -76,9 +76,10 @@ const initNodes = () => {
   addEdges([edge1, edge2]);
 }
 
+let flowInstance = null;
 onPaneReady(instance => {
   console.log('onPaneReady', instance);
-  console.log('vueFlowRef', vueFlowRef.value);
+  flowInstance = instance;
   initNodes();
 })
 
@@ -93,27 +94,49 @@ onConnect((params) => {
 
 onViewportChange(() => {
   closeNodeDialog();
+  closeNodeDialog2();
 })
 
 onNodeDragStart(() => {
   closeNodeDialog();
+  closeNodeDialog2();
 })
 
-onConnectStart((event, params) => {
-  console.log('onConnectStart', event, params);
+const fromNodeId = ref('');
+onConnectStart(({ event, nodeId, handleType, handleId }) => {
+  console.log('onConnectStart', event, nodeId);
+  fromNodeId.value = nodeId;
   closeNodeDialog();
+  closeNodeDialog2();
 })
 
-onConnectEnd((event, params) => {
-  console.log('onConnectEnd', event, params);
-  nodeDialogVisible.value = true;
+onConnectEnd((event) => {
+  console.log('onConnectEnd', event);
+  const { x, y } = event;
+  posInfo.value = { x, y };
+  pendingNodeInfo.value = flowInstance?.project({ x, y }) || { x, y };
+  setTimeout(() => {
+    nodeDialogVisible.value = true;
+  })
+
+  const newNode = { id: uuidv4(), type: 'pending', position: pendingNodeInfo.value };
+  pendingNodeInfo.value.nodeId = newNode.id;
+  addNodes([newNode]);
+  const edge = { id: newNode.id, type: 'line', source: fromNodeId.value, target: newNode.id };
+  addEdges([edge]);
 })
 
+let targetEdge_click = null;
 const clickPlus = (info) => {
   console.log('clickPlus_info', info);
+  targetEdge_click = null;
+  closeNodeDialog2();
   const { x, y, sourceNode, nodeType, edgeInfo } = info;
+  fromNodeId.value = sourceNode.id;
   if (edgeInfo) { // 点击边中间的加号
     nodeDialogVisible.value = false;
+    pendingNodeInfo.value = flowInstance?.project({ x, y });
+    targetEdge_click = edgeInfo;
   }
   setTimeout(() => {
     nodeDialogVisible.value = true;
@@ -126,14 +149,31 @@ const closeNodeDialog = () => {
   nodeDialogVisible.value = false;
   isShowAddNodeDialog.value = false;
 }
+const removePendingNode = () => {
+  removeNodes([pendingNodeInfo.value.nodeId]);
+  removeEdges([pendingNodeInfo.value.nodeId]);
+  pendingNodeInfo.value.nodeId = '';
+}
 
 const posInfo = ref({ x: 0, y: 0 });
+const pendingNodeInfo = ref({ x: 0, y: 0, nodeId: '' });
 const _clickItem = (nodeInfo) => {
   console.log('_clickItem_item: ', nodeInfo);
   const { type, name } = nodeInfo;
-  const nodeItem = { id: uuidv4(), type, data: { name }, position: { x: 456, y: 105 } };
-  addNodes([nodeItem]);
+  const newNode = { id: uuidv4(), type, data: { name }, position: { x: pendingNodeInfo.value.x, y: pendingNodeInfo.value.y - 148 / 2 } };
+  addNodes([newNode]);
+  removePendingNode();
+  const newEdge = { id: newNode.id, type: 'custom', source: fromNodeId.value, target: newNode.id };
+  !isShowAddNodeFlag.value && addEdges([newEdge]);
+  fromNodeId.value = '';
   closeNodeDialog();
+  closeNodeDialog2();
+  if (!isShowAddNodeFlag.value && targetEdge_click) {
+    const edge = { id: uuidv4(), type: 'custom', source: newNode.id, target: targetEdge_click.target };
+    addEdges([edge]);
+    removeEdges([targetEdge_click.id]);
+    targetEdge_click = null;
+  }
 }
 
 const clickNode = (info) => {
@@ -147,10 +187,19 @@ const onMiniMap = (bool) => {
 }
 
 const isShowAddNodeDialog = ref(false);
+const isShowAddNodeFlag = ref(false);
 const clickAddNodeBtn = () => {
   console.log('clickAddNodeBtn');
   nodeDialogVisible.value = false;
-  isShowAddNodeDialog.value = true;
+  closeNodeDialog2(true, true);
+  removePendingNode();
+
+  const viewport = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  pendingNodeInfo.value = flowInstance?.project(viewport) || viewport;
+}
+const closeNodeDialog2 = (bool1, bool2) => {
+  isShowAddNodeDialog.value = bool1 ? true : false;
+  isShowAddNodeFlag.value = bool2 ? true : false;
 }
 
 // 事件触发
@@ -159,7 +208,6 @@ const clickEvent1 = (e) => {
   console.log('clickEvent1: ', element);
   if (!element?.closest('.node-list-dialog')) {
     closeNodeDialog();
-    // removePendingNode();
   }
 }
 window.addEventListener('click', clickEvent1);
@@ -167,6 +215,10 @@ onUnmounted(() => {
   window.removeEventListener('click', clickEvent1);
 })
 // 事件触发
+
+watch(nodeDialogVisible, (val) => {
+  if (!val) removePendingNode();
+})
 
 </script>
 

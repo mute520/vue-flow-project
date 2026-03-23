@@ -4,8 +4,17 @@ This template should help get you started developing with Vue 3 in Vite. The tem
 
 Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
 
+### 生成ssh-key
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 
- w-[100%] bg-[#bada55] text-[#000] text-[20px] font-[600] text-center p-[20px] rounded-[10px]
+### 复制ssh-key
+clip < ~/.ssh/id_rsa.pub
+
+### github配置ssh-key
+
+
+### tailwind配置
+w-[100%] bg-[#bada55] text-[#000] text-[20px] font-[600] text-center p-[20px] rounded-[10px]
 
 ### 开始节点
 工作流的起始节点，用于设定启动工作流需要的信息
